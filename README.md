@@ -14,8 +14,4 @@
 - python-telegram-bot
 - Render.com (hébergement)
 
-## Installation
-```bash
-git clone https://github.com/votre-username/LotoBotNiger.git
-cd LotoBotNiger
-pip install -r requirements.txt
+
