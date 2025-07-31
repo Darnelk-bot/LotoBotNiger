@@ -863,3 +863,14 @@ if __name__ == '__main__':
     print("🤖 LotoBot Niger lancé - Prêt à gagner!")
     print(f"🆓 Période d'essai gratuit: {FREE_TRIAL_DAYS} jours")
     app.run_polling()
+
+# Ajoutez ceci à la toute fin de votre fichier
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app = Flask(__name__)
+
+    @app.route('/')
+    def home():
+        return "LotoBot Niger est en marche!"
+    
+    app.run(host='0.0.0.0', port=port)
