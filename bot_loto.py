@@ -1,3 +1,4 @@
+import os
 import sys
 import subprocess
 import importlib
@@ -864,13 +865,17 @@ if __name__ == '__main__':
     print(f"🆓 Période d'essai gratuit: {FREE_TRIAL_DAYS} jours")
     app.run_polling()
 
-# Ajoutez ceci à la toute fin de votre fichier
 if __name__ == '__main__':
+    # Récupérer le port défini par Render
     port = int(os.environ.get("PORT", 5000))
+    
+    # Créer et configurer l'app Flask
+    from flask import Flask
     app = Flask(__name__)
 
     @app.route('/')
     def home():
         return "LotoBot Niger est en marche!"
-    
+
+    # Lancer le bot et le serveur web
     app.run(host='0.0.0.0', port=port)
