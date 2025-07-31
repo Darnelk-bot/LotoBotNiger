@@ -1,0 +1,7 @@
+# Fichiers à ignorer
+__pycache__/
+*.pyc
+*.pkl
+*.env
+*.csv
+venv/
