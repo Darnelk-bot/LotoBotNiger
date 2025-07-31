@@ -1,3 +1,21 @@
-git add .
-git commit -m "Nouvelle fonctionnalité"
-git push
+# 🤖 LotoBot Niger - Prédictions IA pour le Loto Nigérien
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+
+## Fonctionnalités
+- 🔮 Prédictions de numéros par intelligence artificielle
+- 📊 Statistiques historiques des tirages nigériens
+- 💎 Système premium avec essai gratuit
+- 📲 Intégration Telegram complète
+
+## Technologies
+- Python 3.10
+- Scikit-Learn (MLPClassifier)
+- python-telegram-bot
+- Render.com (hébergement)
+
+## Installation
+```bash
+git clone https://github.com/votre-username/LotoBotNiger.git
+cd LotoBotNiger
+pip install -r requirements.txt
