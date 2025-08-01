@@ -1,3 +1,4 @@
+from flask import Flask
 import os
 import sys
 import subprocess
@@ -902,3 +903,19 @@ if __name__ == '__main__':
     
     # Lancer le bot en mode polling
     app.run_polling()
+
+
+# ======================
+# PARTIE SPÉCIALE POUR RENDER
+# ======================
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "🤖 LotoBot Niger est en marche! ✅"
+
+if __name__ == '__main__':
+    # Configuration Render
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
+
