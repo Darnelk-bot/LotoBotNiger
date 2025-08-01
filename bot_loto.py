@@ -17,6 +17,7 @@ from telegram.ext import (
 
 # Vérifier et installer les dépendances manquantes
 required_modules = ['numpy', 'scikit-learn', 'joblib']
+subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
 
 def install_missing_modules():
     for module in required_modules:
