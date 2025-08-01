@@ -1,6 +1,8 @@
-__pycache__/
-*.pyc
-*.pkl
-*.env
-*.csv
-venv/
+# requirements.txt
+python-telegram-bot
+scikit-learn
+numpy
+pandas
+joblib
+flask
+gunicorn  # Cette ligne doit être présente
