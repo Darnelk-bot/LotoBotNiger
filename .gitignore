@@ -1,8 +1,7 @@
-# requirements.txt
+gunicorn==21.2.0
 python-telegram-bot
 scikit-learn
 numpy
 pandas
 joblib
 flask
-gunicorn  # Cette ligne doit être présente
