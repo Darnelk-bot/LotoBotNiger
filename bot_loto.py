@@ -3,7 +3,6 @@ import sys
 import subprocess
 import importlib
 import csv
-import os
 import random
 from datetime import datetime, timedelta
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -45,11 +44,15 @@ from sklearn.model_selection import train_test_split
 # ======================
 MAX_NUM = 90  # Format du loto nigérien
 NOMBRE_TIRAGE = 5  # Nombre de numéros à prédire
-CSV_FILE = 'loto_niger.csv'  # Fichier des résultats historiques
-MODEL_FILE = 'loto_model_niger.pkl'
-HISTORY_FILE = 'prediction_history.csv'
-PREMIUM_FILE = 'premium_users.csv'
-REJECTED_BALLS_FILE = 'boules_rejetees.csv'  # Fichier des boules rejetées manuelles
+
+# Chemins absolus pour tous les fichiers
+CSV_FILE = os.path.join(os.getcwd(), 'loto_niger.csv')
+MODEL_FILE = os.path.join(os.getcwd(), 'loto_model_niger.pkl')
+HISTORY_FILE = os.path.join(os.getcwd(), 'prediction_history.csv')
+PREMIUM_FILE = os.path.join(os.getcwd(), 'premium_users.csv')
+REJECTED_BALLS_FILE = os.path.join(os.getcwd(), 'boules_rejetees.csv')
+ACTIVITY_LOG = os.path.join(os.getcwd(), 'activity_log.csv')
+PENDING_PAYMENTS = os.path.join(os.getcwd(), 'pending_payments.csv')
 
 # Plans premium en FCFA
 PREMIUM_PLANS = {
@@ -67,7 +70,10 @@ FREE_TRIAL_DAYS = 7
 def lire_donnees():
     """Charge les données historiques du loto nigérien avec dates"""
     tirages = []
+    print(f"📖 Lecture des données depuis: {CSV_FILE}")
+    
     if not os.path.exists(CSV_FILE):
+        print("⚠️ Fichier de données non trouvé")
         return []
     
     with open(CSV_FILE, encoding='utf-8-sig') as csvfile:
@@ -136,7 +142,10 @@ def tirage_to_vecteur(tirage):
 def charger_boules_rejetees():
     """Charge les boules rejetées du fichier manuel"""
     boules_rejetees = []
+    print(f"📖 Lecture des boules rejetées depuis: {REJECTED_BALLS_FILE}")
+    
     if not os.path.exists(REJECTED_BALLS_FILE):
+        print("⚠️ Fichier des boules rejetées non trouvé")
         return boules_rejetees
     
     with open(REJECTED_BALLS_FILE, 'r') as f:
@@ -276,17 +285,22 @@ def predire_tirage(model, historique):
 def charger_premium_users():
     """Charge les utilisateurs premium depuis le fichier"""
     premium_users = {}
-    if os.path.exists(PREMIUM_FILE):
-        with open(PREMIUM_FILE, 'r') as f:
-            reader = csv.reader(f)
-            next(reader, None)  # Ignorer l'en-tête
-            for row in reader:
-                if row and len(row) >= 2:
-                    try:
-                        user_id, expiry = row
-                        premium_users[int(user_id)] = datetime.fromisoformat(expiry)
-                    except (ValueError, IndexError):
-                        continue
+    print(f"📖 Lecture des utilisateurs premium depuis: {PREMIUM_FILE}")
+    
+    if not os.path.exists(PREMIUM_FILE):
+        print("⚠️ Fichier premium non trouvé")
+        return premium_users
+    
+    with open(PREMIUM_FILE, 'r') as f:
+        reader = csv.reader(f)
+        next(reader, None)  # Ignorer l'en-tête
+        for row in reader:
+            if row and len(row) >= 2:
+                try:
+                    user_id, expiry = row
+                    premium_users[int(user_id)] = datetime.fromisoformat(expiry)
+                except (ValueError, IndexError):
+                    continue
     return premium_users
 
 def sauvegarder_premium_user(user_id, duration_days):
@@ -326,6 +340,7 @@ def a_deja_utilise_essai(user_id):
 def logger_prediction(user_id, prediction):
     """Enregistre les prédictions pour analyse"""
     try:
+        print(f"📝 Journalisation de la prédiction dans: {HISTORY_FILE}")
         header = not os.path.exists(HISTORY_FILE)
         with open(HISTORY_FILE, 'a', newline='') as f:
             writer = csv.writer(f)
@@ -342,15 +357,16 @@ def logger_prediction(user_id, prediction):
 def logger_activite(action, user_id):
     """Journalise les activités importantes"""
     try:
-        with open('activity_log.csv', 'a', newline='') as f:
+        print(f"📝 Journalisation d'activité: {action}")
+        with open(ACTIVITY_LOG, 'a', newline='') as f:
             writer = csv.writer(f)
             writer.writerow([
                 datetime.now().isoformat(),
                 user_id,
                 action
             ])
-    except:
-        pass
+    except Exception as e:
+        print(f"⚠️ Erreur journalisation activité: {str(e)}")
 
 # ======================
 # FONCTIONS TELEGRAM
@@ -447,11 +463,10 @@ async def send_prediction(query_or_update, context: ContextTypes.DEFAULT_TYPE):
         
         # Vérification premium ou essai
         is_premium = verifier_premium(user.id)
-        free_uses = 0
+        free_uses = compter_utilisations_gratuites(user.id)
         
         if not is_premium:
             # Limite d'utilisation gratuite
-            free_uses = compter_utilisations_gratuites(user.id)
             if free_uses >= 3:
                 await envoyer_offre_premium(chat_id, user.id, context)
                 return
@@ -750,7 +765,7 @@ async def process_payment_message(update: Update, context: ContextTypes.DEFAULT_
         # Détection de code de transaction
         if "trans" in message_text and any(word in message_text for word in ["om", "moov", "flooz"]):
             # Enregistrer la demande de validation
-            with open('pending_payments.csv', 'a', newline='') as f:
+            with open(PENDING_PAYMENTS, 'a', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow([datetime.now().isoformat(), user_id, message_text])
             
@@ -805,20 +820,36 @@ async def envoyer_offre_premium(chat_id, user_id, context: ContextTypes.DEFAULT_
 # INITIALISATION
 # ======================
 print("⚙️ Initialisation de LotoBot Niger...")
+print(f"📁 Répertoire de travail: {os.getcwd()}")
 
-# Vérifier et créer le fichier des boules rejetées s'il n'existe pas
-if not os.path.exists(REJECTED_BALLS_FILE):
-    with open(REJECTED_BALLS_FILE, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['date', 'tirages_analyses', 'boules_rejetees'])
-    print("📁 Fichier des boules rejetées créé")
-
-# Vérifier et créer le fichier premium s'il n'existe pas
-if not os.path.exists(PREMIUM_FILE):
-    with open(PREMIUM_FILE, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['user_id', 'expiry_date'])
-    print("📁 Fichier premium créé")
+# Créer les fichiers s'ils n'existent pas
+for file_path in [CSV_FILE, MODEL_FILE, HISTORY_FILE, PREMIUM_FILE, 
+                 REJECTED_BALLS_FILE, ACTIVITY_LOG, PENDING_PAYMENTS]:
+    if not os.path.exists(file_path):
+        # Créer les répertoires parents si nécessaire
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
+        # Créer le fichier avec l'en-tête approprié
+        with open(file_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            if file_path == REJECTED_BALLS_FILE:
+                writer.writerow(['date', 'tirages_analyses', 'boules_rejetees'])
+                print(f"📁 Fichier créé: {file_path}")
+            elif file_path == PREMIUM_FILE:
+                writer.writerow(['user_id', 'expiry_date'])
+                print(f"📁 Fichier créé: {file_path}")
+            elif file_path == HISTORY_FILE:
+                writer.writerow(['timestamp', 'user_id', 'prediction'])
+                print(f"📁 Fichier créé: {file_path}")
+            elif file_path == ACTIVITY_LOG:
+                writer.writerow(['timestamp', 'user_id', 'action'])
+                print(f"📁 Fichier créé: {file_path}")
+            elif file_path == PENDING_PAYMENTS:
+                writer.writerow(['timestamp', 'user_id', 'message'])
+                print(f"📁 Fichier créé: {file_path}")
+            else:
+                # Pour les autres fichiers, on ne fait rien (ils seront créés par l'usage)
+                pass
 
 # Chargement du modèle
 models = None
@@ -842,10 +873,14 @@ except Exception as e:
     print(f"❌ Erreur de chargement du modèle: {str(e)}")
     models = None
 
-# Configuration du bot
-BOT_TOKEN = '8259151994:AAGcJzQwOZm-GRi14wt8wS-H6T17-JZJKck'
-
 if __name__ == '__main__':
+    # Récupérer le token depuis les variables d'environnement
+    BOT_TOKEN = os.environ.get('BOT_TOKEN')
+    if not BOT_TOKEN:
+        print("❌ ERREUR: BOT_TOKEN non défini dans les variables d'environnement")
+        exit(1)
+    
+    # Initialiser le bot Telegram
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     
     # Handlers principaux
@@ -863,6 +898,6 @@ if __name__ == '__main__':
     
     print("🤖 LotoBot Niger lancé - Prêt à gagner!")
     print(f"🆓 Période d'essai gratuit: {FREE_TRIAL_DAYS} jours")
+    
+    # Lancer le bot en mode polling
     app.run_polling()
-
-
