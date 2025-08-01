@@ -1,7 +1,5 @@
-python-telegram-bot==20.3
-scikit-learn==1.0.2  # Version plus stable et compatible
-numpy==1.22.4        # Version compatible avec scikit-learn 1.0.2
-pandas==1.5.3
-joblib==1.2.0
-setuptools==65.5.0
-wheel==0.38.4
+python-telegram-bot
+scikit-learn
+numpy
+pandas
+joblib
