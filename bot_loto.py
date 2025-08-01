@@ -905,10 +905,23 @@ if __name__ == '__main__':
     app.run_polling()
 
 
-# ======================================
-# NE RIEN AJOUTER D'AUTRE EN DESSOUS DE CES LIGNES
-# ======================================
+# Créer l'application Flask
+flask_app = Flask(__name__)
+
+@flask_app.route('/')
+def home():
+    return "🤖 LotoBot Niger est en marche! ✅"
+
+def run_flask():
+    port = int(os.environ.get("PORT", 10000))
+    flask_app.run(host='0.0.0.0', port=port)
+
 if __name__ == '__main__':
-    # Lancement du bot
+    # Démarrer Flask dans un thread séparé
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.daemon = True
+    flask_thread.start()
+    
+    # Démarrer le bot Telegram
     application.run_polling()
 
