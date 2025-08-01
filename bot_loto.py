@@ -867,7 +867,7 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     # Récupérer le port défini par Render
-    port = int(os.environ.get("PORT", 4000))
+    port = int(os.environ.get("PORT", 5000))
     
     # Créer et configurer l'app Flask
     from flask import Flask
