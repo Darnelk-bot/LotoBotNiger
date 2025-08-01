@@ -905,17 +905,10 @@ if __name__ == '__main__':
     app.run_polling()
 
 
-# ======================
-# PARTIE SPÉCIALE POUR RENDER
-# ======================
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "🤖 LotoBot Niger est en marche! ✅"
-
+# ======================================
+# NE RIEN AJOUTER D'AUTRE EN DESSOUS DE CES LIGNES
+# ======================================
 if __name__ == '__main__':
-    # Configuration Render
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    # Lancement du bot
+    application.run_polling()
 
