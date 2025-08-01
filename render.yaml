@@ -2,7 +2,9 @@ services:
   - type: worker
     name: lotobot-worker
     runtime: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      pip install --upgrade pip setuptools wheel
+      pip install -r requirements.txt
     startCommand: python bot_loto.py
     envVars:
       - key: BOT_TOKEN
