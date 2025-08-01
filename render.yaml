@@ -1,13 +1,4 @@
 services:
-  - type: web
-    name: lotobot-web
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn web:app --workers 4 --bind 0.0.0.0:$PORT
-    envVars:
-      - key: PORT
-        value: 8000
-
   - type: worker
     name: lotobot-worker
     runtime: python
@@ -15,4 +6,4 @@ services:
     startCommand: python bot_loto.py
     envVars:
       - key: BOT_TOKEN
-        value: 8259151994:AAGcJzQwOZm-GRi14wt8wS-H6T17-JZJKck
+        value: votre_token_telegram_reel
