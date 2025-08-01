@@ -6,4 +6,4 @@ services:
     startCommand: python bot_loto.py
     envVars:
       - key: BOT_TOKEN
-        value: votre_token_telegram_reel
+        value: 8259151994:AAGcJzQwOZm-GRi14wt8wS-H6T17-JZJKck
