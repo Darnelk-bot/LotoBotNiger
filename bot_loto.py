@@ -905,23 +905,35 @@ if __name__ == '__main__':
     app.run_polling()
 
 
-# Créer l'application Flask
+# ======================
+# PARTIE DÉMARRAGE POUR RENDER
+# ======================
+import threading
+from flask import Flask, request
+import os
+
+# Créer une application Flask minimale
 flask_app = Flask(__name__)
 
 @flask_app.route('/')
 def home():
-    return "🤖 LotoBot Niger est en marche! ✅"
+    return "🤖 LotoBot Niger est actif et fonctionne! ✅"
 
-def run_flask():
-    port = int(os.environ.get("PORT", 10000))
-    flask_app.run(host='0.0.0.0', port=port)
+@flask_app.route('/health')
+def health_check():
+    return "OK", 200
+
+def run_flask_server():
+    """Lance le serveur Flask dans un thread séparé"""
+    port = int(os.environ.get("PORT", 5000))
+    flask_app.run(host='0.0.0.0', port=port, use_reloader=False)
 
 if __name__ == '__main__':
-    # Démarrer Flask dans un thread séparé
-    flask_thread = threading.Thread(target=run_flask)
+    # Démarrer le serveur Flask dans un thread séparé
+    flask_thread = threading.Thread(target=run_flask_server)
     flask_thread.daemon = True
     flask_thread.start()
     
     # Démarrer le bot Telegram
+    print("Démarrage du bot Telegram...")
     application.run_polling()
-
