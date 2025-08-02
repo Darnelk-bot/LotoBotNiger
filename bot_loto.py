@@ -1,4 +1,5 @@
-from flask import Flask
+import threading
+from flask import Flask, request
 import os
 import sys
 import subprocess
@@ -908,9 +909,7 @@ if __name__ == '__main__':
 # ======================
 # PARTIE DÉMARRAGE POUR RENDER
 # ======================
-import threading
-from flask import Flask, request
-import os
+
 
 # Créer une application Flask minimale
 flask_app = Flask(__name__)
@@ -925,7 +924,7 @@ def health_check():
 
 def run_flask_server():
     """Lance le serveur Flask dans un thread séparé"""
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 1000))
     flask_app.run(host='0.0.0.0', port=port, use_reloader=False)
 
 if __name__ == '__main__':
