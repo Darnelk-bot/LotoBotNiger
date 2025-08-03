@@ -907,29 +907,45 @@ if __name__ == '__main__':
 
 
 # ======================
-# PARTIE DÉMARRAGE POUR RENDER
+# PARTIE FIX POUR RENDER
 # ======================
+import socket
+from threading import Thread
+import time
+import os
 
-
-# Créer une application Flask minimale
+# Créer l'application Flask
 flask_app = Flask(__name__)
 
 @flask_app.route('/')
 def home():
-    return "🤖 LotoBot Niger est actif et fonctionne! ✅"
+    return "🤖 LotoBot Niger est actif! ✅"
 
 @flask_app.route('/health')
 def health_check():
     return "OK", 200
 
-def run_flask_server():
-    """Lance le serveur Flask dans un thread séparé"""
-    port = int(os.environ.get("PORT", 10000))
+def port_listener():
+    port = int(os.environ.get("PORT", 5000))
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(('0.0.0.0', port))
+        s.listen()
+        print(f"Port {port} ouvert pour scan Render")
+        time.sleep(120)  # Rester ouvert 2 minutes
+
+def run_flask():
+    port = int(os.environ.get("PORT", 5000))
     flask_app.run(host='0.0.0.0', port=port, use_reloader=False)
 
 if __name__ == '__main__':
-    # Démarrer le serveur Flask dans un thread séparé
-    flask_thread = threading.Thread(target=run_flask_server)
+    # Démarrer le port listener
+    port_thread = Thread(target=port_listener)
+    port_thread.daemon = True
+    port_thread.start()
+    
+    # Démarrer Flask après un court délai
+    time.sleep(1)
+    flask_thread = Thread(target=run_flask)
     flask_thread.daemon = True
     flask_thread.start()
     
