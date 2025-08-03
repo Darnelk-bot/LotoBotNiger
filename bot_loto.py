@@ -926,7 +926,7 @@ def health_check():
     return "OK", 200
 
 def port_listener():
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 10000))
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(('0.0.0.0', port))
         s.listen()
@@ -934,7 +934,7 @@ def port_listener():
         time.sleep(120)  # Rester ouvert 2 minutes
 
 def run_flask():
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 10000))
     flask_app.run(host='0.0.0.0', port=port, use_reloader=False)
 
 if __name__ == '__main__':
